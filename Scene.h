@@ -28,8 +28,7 @@ struct GameState
     
     // ————— AUDIO ————— //
     Mix_Music* bgm;
-    Mix_Chunk* jump_sfx;
-    Mix_Chunk* pop_sfx;
+    Mix_Chunk** sfx;
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;
@@ -38,7 +37,12 @@ struct GameState
 class Scene {
 public:
     // ————— ATTRIBUTES ————— //
-    int m_number_of_enemies = 1;
+    int m_number_of_enemies = 1,
+        m_number_of_sfx     = 3;
+
+    const int SWORD_SFX = 0,
+              KILL_SFX = 1,
+              DEATH_SFX = 2;
 
     // ----- BACKGROUND COLOR ----- //
     float BG_RED,

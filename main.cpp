@@ -32,13 +32,13 @@
 #include "Utility.h"
 #include "Scene.h"
 #include "scenes/StartScreen.h"
-#include "scenes/LevelA.h"
-//#include "scenes/LevelB.h"
+#include "scenes/town.h"
+#include "scenes/dungeon.h"
 //#include "scenes/LevelC.h"
 
 // ————— CONSTANTS ————— //
-const int   WINDOW_WIDTH = 640,
-            WINDOW_HEIGHT = 480;
+const int   WINDOW_WIDTH = 800,
+            WINDOW_HEIGHT = 600;
 
 const int   VIEWPORT_X = 0,
             VIEWPORT_Y = 0,
@@ -63,8 +63,8 @@ GLuint font_texture_id;
 
 // ————— GLOBAL VARIABLES ————— //
 Scene* g_current_scene;
-LevelA* g_level_a;
-//LevelB* g_level_b;
+Town* g_town_level;
+Dungeon* g_dungeon_level;
 //LevelC* g_level_c;
 StartScreen* g_start_screen;
 
@@ -85,20 +85,23 @@ int g_number_of_lives = 3;
 
 void switch_to_scene(Scene* scene)
 {
-    /*
-    if (scene == g_level_a) { g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH); }
-    else { g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH); }
+    if (scene == g_town_level || scene == g_start_screen) { g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH); }
+    else { g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH); }
 
     g_view_matrix = glm::mat4(1.0f);
-    g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
+    g_projection_matrix = glm::ortho(-7.0f, 7.0f, -5.25f, 5.25f, -1.0f, 1.0f);
     g_shader_program.set_projection_matrix(g_projection_matrix);
     g_shader_program.set_view_matrix(g_view_matrix);
     glUseProgram(g_shader_program.get_program_id());
-    */
     glClearColor(scene->BG_RED, scene->BG_GREEN, scene->BG_BLUE, scene->BG_OPACITY);
 
     g_current_scene = scene;
     g_current_scene->initialise();
+}
+
+void start_attack_animation(int m_facing)
+{
+    g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_attack[g_current_scene->m_state.player->m_facing];
 }
 
 void initialise()
@@ -123,7 +126,7 @@ void initialise()
     g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
 
     g_view_matrix = glm::mat4(1.0f);
-    g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
+    g_projection_matrix = glm::ortho(-7.0f, 7.0f, -5.25f, 5.25f, -1.0f, 1.0f);
 
     g_shader_program.set_projection_matrix(g_projection_matrix);
     g_shader_program.set_view_matrix(g_view_matrix);
@@ -132,27 +135,27 @@ void initialise()
 
     // ————— LEVEL SETUP ————— //
     g_start_screen = new StartScreen();
-    g_start_screen->BG_RED = 95.0f / 255.0f;
-    g_start_screen->BG_GREEN = 189.0f / 255.0f;
-    g_start_screen->BG_BLUE = 255.0f / 255.0f;
+    g_start_screen->BG_RED = 20.0f / 255.0f;
+    g_start_screen->BG_GREEN = 20.0f / 255.0f;
+    g_start_screen->BG_BLUE = 20.0f / 255.0f;
     g_start_screen->BG_OPACITY = 1.0f;
 
-    g_level_a = new LevelA();
-    g_level_a->BG_RED = 33.0f / 255.0f;
-    g_level_a->BG_GREEN = 21.0f / 255.0f;
-    g_level_a->BG_BLUE = 14.0f / 255.0f;
-    g_level_a->BG_OPACITY = 1.0f;
-    g_level_a->m_state.next_scene_id = 1;
+    g_town_level = new Town();
+    g_town_level->BG_RED = 132.0f / 255.0f;
+    g_town_level->BG_GREEN = 198.0f / 255.0f;
+    g_town_level->BG_BLUE = 105.0f / 255.0f;
+    g_town_level->BG_OPACITY = 1.0f;
+    g_town_level->m_state.next_scene_id = 1;
+
+    g_dungeon_level = new Dungeon();
+    g_dungeon_level->BG_RED = 20.0f / 255.0f;
+    g_dungeon_level->BG_GREEN = 14.0f / 255.0f;
+    g_dungeon_level->BG_BLUE = 9.0f / 255.0f;
+    g_dungeon_level->BG_OPACITY = 1.0f;
+    g_dungeon_level->m_state.next_scene_id = 2;
+
 
     /*
-    g_level_b = new LevelB();
-    g_level_b->BG_RED = 158.0f / 255.0f;
-    g_level_b->BG_GREEN = 213.0f / 255.0f;
-    g_level_b->BG_BLUE = 222.0f / 255.0f;
-    g_level_b->BG_OPACITY = 1.0f;
-    g_level_b->m_state.next_scene_id = 2;
-
-
     g_level_c = new LevelC();
     g_level_c->BG_RED = 158.0f / 255.0f;
     g_level_c->BG_GREEN = 213.0f / 255.0f;
@@ -160,8 +163,8 @@ void initialise()
     g_level_c->BG_OPACITY = 1.0f;
     */
 
-    g_levels.push_back(g_level_a);
-    //g_levels.push_back(g_level_b);
+    g_levels.push_back(g_town_level);
+    g_levels.push_back(g_dungeon_level);
     //g_levels.push_back(g_level_c);
 
     switch_to_scene(g_start_screen);
@@ -195,15 +198,13 @@ void process_input()
             case SDLK_SPACE:
                 // Jump
                 if (g_current_scene == g_start_screen) break;
-                if (g_current_scene->m_state.player->m_collided_bottom)
-                {
-                    g_current_scene->m_state.player->m_is_jumping = true;
-                    Mix_PlayChannel(-1, g_current_scene->m_state.jump_sfx, 0);
-                }
+
+                g_current_scene->m_state.player->m_is_attacking = true;
+                start_attack_animation(g_current_scene->m_state.player->m_facing);
                 break;
 
             case SDLK_RETURN:
-                if (g_current_scene == g_start_screen) switch_to_scene(g_level_a);
+                if (g_current_scene == g_start_screen) switch_to_scene(g_town_level);
                 break;
 
             default:
@@ -221,15 +222,37 @@ void process_input()
 
         const Uint8* key_state = SDL_GetKeyboardState(NULL);
 
-        if ((key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_A]) && g_current_scene->m_state.player->get_position().x > 0.0f)
+        if (key_state[SDL_SCANCODE_UP] || key_state[SDL_SCANCODE_W])
+        {
+            g_current_scene->m_state.player->move_up();
+            g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_walking[g_current_scene->m_state.player->UP];
+            g_current_scene->m_state.player->m_facing = g_current_scene->m_state.player->UP;
+            g_current_scene->m_state.player->m_is_attacking = false;
+            g_current_scene->m_state.player->weapon->deactivate();
+        }
+        else if (key_state[SDL_SCANCODE_DOWN] || key_state[SDL_SCANCODE_S] && g_current_scene->m_state.player->get_position().y > -(g_current_scene->m_state.map->get_height() - 1.0f))
+        {
+            g_current_scene->m_state.player->move_down();
+            g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_walking[g_current_scene->m_state.player->DOWN];
+            g_current_scene->m_state.player->m_facing = g_current_scene->m_state.player->DOWN;
+            g_current_scene->m_state.player->m_is_attacking = false;
+            g_current_scene->m_state.player->weapon->deactivate();
+        }
+        else if (key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_A])
         {
             g_current_scene->m_state.player->move_left();
             g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_walking[g_current_scene->m_state.player->LEFT];
+            g_current_scene->m_state.player->m_facing = g_current_scene->m_state.player->LEFT;
+            g_current_scene->m_state.player->m_is_attacking = false;
+            g_current_scene->m_state.player->weapon->deactivate();
         }
         else if (key_state[SDL_SCANCODE_RIGHT] || key_state[SDL_SCANCODE_D])
         {
             g_current_scene->m_state.player->move_right();
             g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_walking[g_current_scene->m_state.player->RIGHT];
+            g_current_scene->m_state.player->m_facing = g_current_scene->m_state.player->RIGHT;
+            g_current_scene->m_state.player->m_is_attacking = false;
+            g_current_scene->m_state.player->weapon->deactivate();
         }
 
         // This makes sure that the player can't move faster diagonally
@@ -256,26 +279,26 @@ void game_loop(float delta_time)
     float camera_x;
     float camera_y;
 
-    if (g_current_scene->m_state.player->get_position().x < 4.5f)
+    if (g_current_scene->m_state.player->get_position().x < 7.5f)
     {
-        camera_x = -4.5;
+        camera_x = -7.5f;
     }
-    else if (g_current_scene->m_state.player->get_position().x > g_current_scene->m_state.map->get_width() - 6.0f)
+    else if (g_current_scene->m_state.player->get_position().x > g_current_scene->m_state.map->get_width() - 7.5f)
     {
-        camera_x = -(g_current_scene->m_state.map->get_width() - 6.0f);
+        camera_x = -(g_current_scene->m_state.map->get_width() - 7.5f);
     }
     else
     {
         camera_x = -g_current_scene->m_state.player->get_position().x;
     }
 
-    if (g_current_scene->m_state.player->get_position().y > -4.0f)
+    if (g_current_scene->m_state.player->get_position().y > -5.0f)
     {
-        camera_y = 4.0;
+        camera_y = 5.0f;
     }
-    else if (g_current_scene->m_state.player->get_position().y < -(g_current_scene->m_state.map->get_height() - 4.5f))
+    else if (g_current_scene->m_state.player->get_position().y < -(g_current_scene->m_state.map->get_height() - 6.0f))
     {
-        camera_y = (g_current_scene->m_state.map->get_width() - 4.5f);
+        camera_y = (g_current_scene->m_state.map->get_height() - 6.0f);
     }
     else
     {
@@ -288,7 +311,7 @@ void game_loop(float delta_time)
     g_view_matrix = glm::translate(g_view_matrix, glm::vec3(camera_x, camera_y, 0.0f));
 
     // ————— NEXT LEVEL ————— //
-    if (g_current_scene->m_state.player->get_position().x > g_current_scene->m_state.map->get_width() - 1.0f)
+    if (g_current_scene->m_state.player->m_next_level)
     {
         switch_to_scene(g_levels[g_current_scene->m_state.next_scene_id]);
     }
@@ -296,6 +319,7 @@ void game_loop(float delta_time)
     if (g_current_scene->m_state.player->m_player_dead) 
     {
         --g_number_of_lives;
+        Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->DEATH_SFX], 0);
         if (g_number_of_lives > 0) g_current_scene->initialise();
     }
 
@@ -318,23 +342,20 @@ void update()
         return;
     }
 
-    if (!g_win && !g_lose && g_current_scene != g_start_screen)
-    {
-        game_loop(delta_time);
-    }
+    if (!g_win && !g_lose && g_current_scene != g_start_screen) game_loop(delta_time); 
     
 }
 
 void render()
 {
     g_shader_program.set_view_matrix(g_view_matrix);
-    if (g_current_scene == g_level_a) g_shader_program.set_light_position(g_current_scene->m_state.player->get_position());
+    if (g_current_scene == g_dungeon_level) g_shader_program.set_light_position(g_current_scene->m_state.player->get_position());
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(g_shader_program.get_program_id());
     g_current_scene->render(&g_shader_program);
 
     if (g_win) Utility::draw_text(&g_shader_program, font_texture_id, "YOU WIN!", 0.4f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x + 1.5f, g_current_scene->m_state.player->get_position().y - 2.0f, 0.0f));
-    if (g_lose) Utility::draw_text(&g_shader_program, font_texture_id, "YOU LOSE!", 0.4f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 1.5f, g_current_scene->m_state.player->get_position().y + 2.0f, 0.0f));
+    if (g_lose) Utility::draw_text(&g_shader_program, font_texture_id, "YOU LOSE!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y + 2.0f, 0.0f));
 
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -343,8 +364,8 @@ void shutdown()
 {
     SDL_Quit();
     delete g_start_screen;
-    delete g_level_a;
-    //delete g_level_b;
+    delete g_town_level;
+    delete g_dungeon_level;
     //delete g_level_c;
 }
 

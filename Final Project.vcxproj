@@ -134,8 +134,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="scenes\LevelA.cpp" />
-    <ClCompile Include="scenes\LevelB.cpp" />
+    <ClCompile Include="scenes\Town.cpp" />
+    <ClCompile Include="scenes\Dungeon.cpp" />
     <ClCompile Include="scenes\LevelC.cpp" />
     <ClCompile Include="scenes\StartScreen.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -145,8 +145,8 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="scenes\LevelA.h" />
-    <ClInclude Include="scenes\LevelB.h" />
+    <ClInclude Include="scenes\Town.h" />
+    <ClInclude Include="scenes\Dungeon.h" />
     <ClInclude Include="scenes\LevelC.h" />
     <ClInclude Include="scenes\StartScreen.h" />
     <ClInclude Include="ShaderProgram.h" />

@@ -34,6 +34,7 @@ Entity::Entity()
 
     // ––––– TRANSLATION ––––– //
     m_movement = glm::vec3(0.0f);
+    m_scale = glm::vec3(1.0f, 1.0f, 0.0f);
     m_speed = 0;
     m_model_matrix = glm::mat4(1.0f);
     m_angle = 0.0f;
@@ -48,6 +49,8 @@ Entity::~Entity()
     delete[] m_animation_right;
     delete[] m_walking;
     delete[] m_animation_idle;
+    delete weapon;
+    delete shadow;
 }
 
 void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index)
@@ -92,12 +95,15 @@ void Entity::ai_activate(Entity* player)
 {
     switch (m_ai_type)
     {
-    case BUG:
-        ai_bug();
+    case SNAKE:
+        ai_snake();
         break;
 
     case WASP:
         ai_wasp(player);
+        break;
+
+    case BUG:
         break;
 
     default:
@@ -105,19 +111,38 @@ void Entity::ai_activate(Entity* player)
     }
 }
 
-void Entity::ai_bug()
+void Entity::ai_snake()
 {
-    if (m_position.x < m_init_pos.x - 1.9f)
-    {
-        m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
-        m_animation_indices = m_walking[RIGHT];
-    }
-    if (m_position.x > m_init_pos.x + 1.9f)
-    {
-        m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
-        m_animation_indices = m_walking[LEFT];
-    }
-    
+    switch (m_ai_state) {
+    case ROAM_HORIZONTAL:
+        if (m_position.x < m_init_pos.x - 1.9f)
+        {
+            m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+            m_animation_indices = m_walking[RIGHT];
+        }
+        if (m_position.x > m_init_pos.x + 1.9f)
+        {
+            m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+            m_animation_indices = m_walking[LEFT];
+        }
+        break;
+
+    case ROAM_VERTICAL:
+        if (m_position.y > m_init_pos.y + 2.5f) 
+        {
+            m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
+            m_animation_indices = m_walking[DOWN];
+        }
+        if (m_position.y < m_init_pos.y - 2.5f) 
+        {
+            m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+            m_animation_indices = m_walking[UP];
+        }
+        break;
+
+    default:
+        break;
+    } 
 }
 
 void Entity::ai_wasp(Entity* player)
@@ -139,7 +164,7 @@ void Entity::ai_wasp(Entity* player)
     }
 }
 
-void Entity::update(float delta_time, Entity* player, Entity* objects, int object_count, Map* map, Mix_Chunk* sfx)
+void Entity::update(float delta_time, Entity* player, Entity* objects, int object_count, Map* map, Mix_Chunk** sfx)
 {
     if (!m_is_active) return;
 
@@ -154,7 +179,7 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
 
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0 || m_entity_type == FLAG)
+        if (glm::length(m_movement) != 0 || get_entity_type() == WEAPON)
         {
             m_animation_time += delta_time;
             float frames_per_second = (float)1 / SECONDS_PER_FRAME;
@@ -166,45 +191,83 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
 
                 if (m_animation_index >= m_animation_frames)
                 {
+                    if (get_entity_type() == WEAPON)
+                    {
+                        player->weapon->deactivate();
+                        player->m_animation_indices = player->m_walking[player->m_facing];
+                    }
                     m_animation_index = 0;
                 }
             }
         }
-  
+    }
+
+    // PLAYER ATTACK DIRECTION
+    if (m_is_attacking) {
+        m_is_attacking = false;
+
+        switch (player->m_facing)
+        {
+        case DOWN:
+            player->weapon->set_position(glm::vec3(m_position.x, m_position.y - 1.0f, 0.0f));
+            break;
+
+        case UP:
+            player->weapon->set_position(glm::vec3(m_position.x, m_position.y + 1.0f, 0.0f));
+            break;
+
+        case LEFT:
+            player->weapon->set_position(glm::vec3(m_position.x - 1.0f, m_position.y, 0.0f));
+            break;
+
+        case RIGHT:
+            player->weapon->set_position(glm::vec3(m_position.x + 1.0f, m_position.y, 0.0f));
+            break;
+
+        default:
+            break;
+        }
+        player->weapon->activate();
+        player->weapon->m_animation_indices = weapon->m_attack[player->m_facing];
+        Mix_PlayChannel(-1, sfx[0], 0);
+    }
+
+    // SWORD COLLISION
+        for (int i = 0; i < object_count; i++)
+        {
+            if (player->weapon->check_collision(&objects[i]) && objects[i].get_entity_type() == ENEMY)
+            {
+                objects[i].deactivate();
+                objects[i].shadow->deactivate();
+                Mix_PlayChannel(-1, sfx[1], 0);
+            }
+        }
+
+    // ENTITY SHADOW
+    if (get_entity_type() == PLAYER || get_entity_type() == ENEMY) {
+        this->shadow->set_position(glm::vec3(this->get_position().x, this->get_position().y - 0.5f, 0.0f));
     }
 
     if (m_position.y < -map->get_height()) m_player_dead = true;
 
-    if (m_ai_type == WASP) 
-    {
-        m_velocity.y = m_movement.y * m_speed;
-    }
-
-    m_velocity.x = m_movement.x * m_speed;
-    m_velocity += m_acceleration * delta_time;
+    m_velocity = m_movement * m_speed;
+    //m_velocity += m_acceleration * delta_time;
 
     // We make two calls to our check_collision methods, one for the collidable objects and one for
     // the map.
     m_position.y += m_velocity.y * delta_time;
-    check_collision_y(objects, object_count, sfx);
-    check_collision_y(map, sfx);
+    check_collision_y(objects, object_count);
+    check_collision_y(map);
 
     m_position.x += m_velocity.x * delta_time;
     check_collision_x(objects, object_count);
     check_collision_x(map);
 
-    if (m_is_jumping)
-    {
-        m_is_jumping = false;
-
-        m_velocity.y += m_jumping_power;
-    }
-
     m_model_matrix = glm::mat4(1.0f);
-    m_model_matrix = glm::translate(m_model_matrix, m_position);
+    m_model_matrix = glm::translate(m_model_matrix, m_position) * glm::scale(m_model_matrix, m_scale);
 }
 
-void const Entity::check_collision_y(Entity* collidable_entities, int collidable_entity_count, Mix_Chunk* sfx)
+void const Entity::check_collision_y(Entity* collidable_entities, int collidable_entity_count)
 {
     for (int i = 0; i < collidable_entity_count; i++)
     {
@@ -214,7 +277,7 @@ void const Entity::check_collision_y(Entity* collidable_entities, int collidable
         {
             float y_distance = fabs(m_position.y - collidable_entity->get_position().y);
             float y_overlap = fabs(y_distance - (m_height / 2.0f) - (collidable_entity->get_height() / 2.0f));
-            if (m_velocity.y > 0) {
+            if (m_velocity.y >= 0) {
                 m_position.y -= y_overlap;
                 m_velocity.y = 0;
                 m_collided_top = true;
@@ -222,17 +285,13 @@ void const Entity::check_collision_y(Entity* collidable_entities, int collidable
                 if (collidable_entity->get_entity_type() == ENEMY) m_player_dead = true;
                 
             }
-            else if (m_velocity.y < 0) {
+            else if (m_velocity.y <= 0) {
                 m_position.y += y_overlap;
                 m_velocity.y = 0;
                 m_collided_bottom = true;
 
-                if (collidable_entity->get_entity_type() == ENEMY)
-                {
-                    m_velocity.y += m_jumping_power;
-                    Mix_PlayChannel(-1, sfx, 0);
-                    collidable_entity->deactivate();
-                }
+                if (collidable_entity->get_entity_type() == ENEMY) m_player_dead = true;
+
             }
         }
 
@@ -249,14 +308,14 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
         {
             float x_distance = fabs(m_position.x - collidable_entity->get_position().x);
             float x_overlap = fabs(x_distance - (m_width / 2.0f) - (collidable_entity->get_width() / 2.0f));
-            if (m_velocity.x > 0) {
+            if (m_velocity.x >= 0) {
                 m_position.x -= x_overlap;
                 m_velocity.x = 0;
                 m_collided_right = true;
 
                 if (collidable_entity->get_entity_type() == ENEMY) m_player_dead = true;
             }
-            else if (m_velocity.x < 0) {
+            else if (m_velocity.x <= 0) {
                 m_position.x += x_overlap;
                 m_velocity.x = 0;
                 m_collided_left = true;
@@ -268,7 +327,7 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 }
 
 
-void const Entity::check_collision_y(Map* map, Mix_Chunk* sfx)
+void const Entity::check_collision_y(Map* map)
 {
     // Probes for tiles above
     glm::vec3 top = glm::vec3(m_position.x, m_position.y + (m_height / 2), m_position.z);
@@ -324,14 +383,8 @@ void const Entity::check_collision_y(Map* map, Mix_Chunk* sfx)
 
     }
 
-    if (m_collided_bottom && map->check_tile(bottom) == 108)
-    {
-        m_velocity.y += 10.0f;
-        Mix_PlayChannel(-1, sfx, 0);
-    }
-
-    if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 111 || map->check_tile(bottom) == 111)) m_player_win = true;
-    if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 131 || map->check_tile(bottom) == 131)) m_player_win = true;
+    if (m_collided_top && (map->check_tile(top) == 111) || map->check_tile(top) == 112 || map->check_tile(top) == 142 || map->check_tile(top) == 143) m_next_level = true;
+    if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 173 || map->check_tile(bottom) == 173)) m_player_dead = true;
 }
 
 void const Entity::check_collision_x(Map* map)
@@ -356,8 +409,7 @@ void const Entity::check_collision_x(Map* map)
         m_collided_right = true;
     }
 
-    if ((m_collided_right || m_collided_left) && (map->check_tile(right) == 111 || map->check_tile(left) == 111)) m_player_win = true;
-    if ((m_collided_right || m_collided_left) && (map->check_tile(right) == 131 || map->check_tile(left) == 131)) m_player_win = true;
+    if ((m_collided_right || m_collided_left) && (map->check_tile(right) == 173 || map->check_tile(left) == 173)) m_player_dead = true;
 }
 
 

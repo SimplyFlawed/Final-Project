@@ -52,12 +52,19 @@ unsigned int LEVEL_C_DATA[] =
 
 LevelC::~LevelC()
 {
-    delete [] m_state.enemies;
+    delete[] m_state.enemies;
     delete    m_state.player;
     delete    m_state.map;
-    Mix_FreeChunk(m_state.jump_sfx);
     Mix_FreeMusic(m_state.bgm);
-    Mix_FreeChunk(m_state.pop_sfx);
+    Mix_FreeChunk(m_state.sfx[SWORD_SFX]);
+    Mix_FreeChunk(m_state.sfx[KILL_SFX]);
+
+    for (int i = 0; i < m_number_of_sfx; i++)
+    {
+        delete m_state.sfx[i];
+    }
+
+    delete[] m_state.sfx;
 }
 
 void LevelC::initialise()
@@ -144,22 +151,23 @@ void LevelC::initialise()
     
     // ————— AUDIO SET-UP ————— //
     Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 4096);
+    m_state.sfx = new Mix_Chunk * [m_number_of_sfx];
 
-    m_state.jump_sfx = Mix_LoadWAV("assets/audio/jump1.wav");
-    Mix_VolumeChunk(m_state.jump_sfx, MIX_MAX_VOLUME / 32.0f);
+    m_state.sfx[SWORD_SFX] = Mix_LoadWAV("assets/audio/Sword.wav");
+    Mix_VolumeChunk(m_state.sfx[SWORD_SFX], MIX_MAX_VOLUME / 32.0f);
 
-    m_state.pop_sfx = Mix_LoadWAV("assets/audio/bubble1.wav");
-    Mix_VolumeChunk(m_state.pop_sfx, MIX_MAX_VOLUME / 32.0f);
+    m_state.sfx[KILL_SFX] = Mix_LoadWAV("assets/audio/Kill.wav");
+    Mix_VolumeChunk(m_state.sfx[KILL_SFX], MIX_MAX_VOLUME / 32.0f);
 
 }
 
 void LevelC::update(float delta_time)
 {
-    m_state.player->update(delta_time, m_state.player, m_state.enemies, ENEMY_COUNT, m_state.map, m_state.pop_sfx);
+    m_state.player->update(delta_time, m_state.player, m_state.enemies, ENEMY_COUNT, m_state.map, m_state.sfx);
     
     for (int i = 0; i < ENEMY_COUNT; i++)
     {
-        m_state.enemies[i].update(delta_time, m_state.player, 0, 0, m_state.map, m_state.pop_sfx);
+        m_state.enemies[i].update(delta_time, m_state.player, 0, 0, m_state.map, m_state.sfx);
     }
 }
 

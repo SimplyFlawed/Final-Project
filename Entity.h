@@ -1,9 +1,9 @@
 #pragma once
 #include "Map.h"
 
-enum EntityType { PLAYER, ENEMY, FLAG };
-enum AIType { BUG, WASP };
-enum AIState { PATROL, FLY, CIRCLE };
+enum EntityType { PLAYER, ENEMY, WEAPON, LOGO, SHADOW };
+enum AIType { SNAKE, WASP, BUG };
+enum AIState { ROAM_HORIZONTAL, ROAM_VERTICAL, FLY, CIRCLE };
 
 class Entity
 {
@@ -15,7 +15,11 @@ private:
         * m_animation_left = NULL, // move to the left
         * m_animation_up = NULL, // move upwards
         * m_animation_down = NULL, // move downwards
-        * m_animation_idle = NULL; // move downwards
+        * m_animation_idle = NULL, // move downwards
+        * m_attack_left = NULL,
+        * m_attack_right = NULL,
+        * m_attack_up = NULL,
+        * m_attack_down = NULL;
 
     // ––––– PHYSICS (GRAVITY) ––––– //
     glm::vec3 m_position;
@@ -28,6 +32,7 @@ private:
     glm::vec3 m_movement;
     glm::mat4 m_model_matrix;
     glm::vec3 m_rotation;
+    glm::vec3 m_scale;
     float     m_angle,
               m_radius;
 
@@ -43,7 +48,7 @@ private:
 
 public:
     // ————— STATIC VARIABLES ————— //
-    static const int    SECONDS_PER_FRAME = 4;
+    static const int    SECONDS_PER_FRAME = 6;
     static const int    LEFT = 0,
                         RIGHT = 1,
                         UP = 2,
@@ -60,6 +65,8 @@ public:
             m_animation_idle
         };
 
+    
+
     int m_animation_frames = 0,
         m_animation_index = 0,
         m_animation_cols = 0,
@@ -67,6 +74,24 @@ public:
 
     int* m_animation_indices = NULL;
     float   m_animation_time = 0.0f;
+
+    int m_facing;
+
+    // ––––– ATTACKING ––––– //
+    int** m_attack = new int* [4]
+        {
+            m_attack_left,
+            m_attack_right,
+            m_attack_up,
+            m_attack_down
+        };
+
+    bool m_is_attacking = false;
+
+    Entity* weapon;
+
+    // ––––– SHADOW ––––– //
+    Entity* shadow;
 
     // ––––– PHYSICS (JUMPING) ––––– //
     bool  m_is_jumping = false;
@@ -81,22 +106,23 @@ public:
     GLuint    m_texture_id;
 
     bool m_player_dead = false;
-    bool m_player_win = false;
+    bool m_player_win  = false;
+    bool m_next_level  = false;
 
     // ————— METHODS ————— //
     Entity();
     ~Entity();
 
     void draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index);
-    void update(float delta_time, Entity* player, Entity* objects, int object_count, Map* map, Mix_Chunk* sfx);
+    void update(float delta_time, Entity* player, Entity* objects, int object_count, Map* map, Mix_Chunk** sfx);
     void render(ShaderProgram* program);
 
     bool const check_collision(Entity* other) const;
-    void const check_collision_y(Entity* collidable_entities, int collidable_entity_count, Mix_Chunk* sfx);
+    void const check_collision_y(Entity* collidable_entities, int collidable_entity_count);
     void const check_collision_x(Entity* collidable_entities, int collidable_entity_count);
 
     // Overloading our methods to check for only the map
-    void const check_collision_y(Map* map, Mix_Chunk* sfx);
+    void const check_collision_y(Map* map);
     void const check_collision_x(Map* map);
 
     void move_left() { m_movement.x = -1.0f; };
@@ -105,7 +131,7 @@ public:
     void move_down() { m_movement.y = -1.0f; };
 
     void ai_activate(Entity* player);
-    void ai_bug();
+    void ai_snake();
     void ai_wasp(Entity* player);
 
     void activate() { m_is_active = true; };
@@ -120,10 +146,12 @@ public:
     glm::vec3  const get_velocity()       const { return m_velocity; };
     glm::vec3  const get_acceleration()   const { return m_acceleration; };
     glm::vec3  const get_rotation()       const { return m_rotation; };
+    glm::vec3  const get_scale()          const { return m_scale; };
     float      const get_jumping_power()  const { return m_jumping_power; };
     float      const get_speed()          const { return m_speed; };
     int        const get_width()          const { return m_width; };
     int        const get_height()         const { return m_height; };
+    glm::mat4  const get_model_matrix()   const { return m_model_matrix; };
 
     // ————— SETTERS ————— //
     void const set_entity_type(EntityType new_entity_type) { m_entity_type = new_entity_type; };
@@ -137,8 +165,10 @@ public:
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; };
     void const set_width(float new_width) { m_width = new_width; };
     void const set_height(float new_height) { m_height = new_height; };
+    void const set_scale(glm::vec3 new_scale) { m_scale = new_scale; };
     void const set_rotation(glm::vec3 new_rotation) { m_rotation = new_rotation; };
     void const set_angle(float new_angle) { m_angle = new_angle; };
     void const set_radius(float new_radius) { m_radius = new_radius; };
     void const set_init_pos(glm::vec3 new_position) { m_init_pos = new_position; };
+    void const set_model_matrix(glm::mat4 new_matrix) { m_model_matrix = new_matrix; }
 };
