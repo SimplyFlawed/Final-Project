@@ -108,8 +108,8 @@ void LevelC::initialise()
     m_state.enemies = new Entity[ENEMY_COUNT];
 
     m_state.enemies[0].set_entity_type(ENEMY);
-    m_state.enemies[0].set_ai_type(WASP);
-    m_state.enemies[0].set_ai_state(FLY);
+    m_state.enemies[0].set_ai_type(REPTILE);
+    m_state.enemies[0].set_ai_state(NONE);
     m_state.enemies[0].m_texture_id = wasp_texture_id;
     m_state.enemies[0].set_position(glm::vec3(4.0f, -12.0f, 0.0f));
     m_state.enemies[0].set_init_pos(glm::vec3(4.0f, -12.0f, 0.0f));
@@ -129,8 +129,8 @@ void LevelC::initialise()
     m_state.enemies[0].set_width(0.8f);
     
     m_state.enemies[1].set_entity_type(ENEMY);
-    m_state.enemies[1].set_ai_type(WASP);
-    m_state.enemies[1].set_ai_state(FLY);
+    m_state.enemies[1].set_ai_type(REPTILE);
+    m_state.enemies[1].set_ai_state(NONE);
     m_state.enemies[1].m_texture_id = wasp_texture_id;
     m_state.enemies[1].set_position(glm::vec3(4.0f, -5.0f, 0.0f));
     m_state.enemies[1].set_init_pos(glm::vec3(4.0f, -5.0f, 0.0f));

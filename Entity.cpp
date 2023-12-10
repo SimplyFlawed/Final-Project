@@ -91,7 +91,7 @@ void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint textu
     glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
-void Entity::ai_activate(Entity* player)
+void Entity::ai_activate(Entity* player, float delta_time)
 {
     switch (m_ai_type)
     {
@@ -99,8 +99,8 @@ void Entity::ai_activate(Entity* player)
         ai_snake();
         break;
 
-    case WASP:
-        ai_wasp(player);
+    case REPTILE:
+        ai_reptile(player, delta_time);
         break;
 
     case BUG:
@@ -145,18 +145,93 @@ void Entity::ai_snake()
     } 
 }
 
-void Entity::ai_wasp(Entity* player)
+void Entity::ai_reptile(Entity* player, float delta_time)
 {
+    float x_distance = fabs(m_position.x - player->get_position().x);
+    float y_distance = fabs(m_position.y - player->get_position().y);
+
+    if (x_distance < 5.0f && y_distance < 5.0f) 
+    { 
+        m_agro_time += delta_time;
+
+        if (m_agro_time >= 5.0f) 
+        {
+            m_agro_time = 0.0f;
+        }
+        else if (m_agro_time >= 3.0f) {
+            set_ai_state(NONE);
+        }
+        else if (m_agro_time >= 1.0f)
+        {
+            set_ai_state(RUSH);
+        }
+        else { set_ai_state(WALK); }
+    }
+    else 
+    { 
+        set_ai_state(NONE);
+        m_agro_time = 0.0f;
+    }
+
     switch (m_ai_state) {
-    case CIRCLE:
-        m_movement.x = m_radius * glm::cos(m_angle);
-        m_movement.y = m_radius * glm::sin(m_angle);
+    case RUSH:
+        set_speed(4.0f);
+
+        if (x_distance > y_distance)
+        {
+            if (m_position.x > player->get_position().x) {
+                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+            }
+        }
+        else
+        {
+            if (m_position.y > player->get_position().y) {
+                m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
+                m_animation_indices = m_walking[DOWN];
+            }
+            else
+            {
+                m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+                m_animation_indices = m_walking[UP];
+            }
+        }
         
         break;
 
-    case FLY:
-        if (m_position.y > m_init_pos.y + 1.5f) m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
-        if (m_position.y < m_init_pos.y - 1.5f) m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+    case WALK:
+        set_speed(0.5f);
+        if (x_distance > y_distance)
+        {
+            if (m_position.x > player->get_position().x) {
+                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+                m_animation_indices = m_walking[LEFT];
+            }
+            else
+            {
+                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+                m_animation_indices = m_walking[RIGHT];
+            }
+        }
+        else
+        {
+            if (m_position.y > player->get_position().y) {
+                m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
+                m_animation_indices = m_walking[DOWN];
+            }
+            else
+            {
+                m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+                m_animation_indices = m_walking[UP];
+            }
+        }
+        break;
+
+    case NONE:
+        m_movement = glm::vec3(0.0f);
         break;
 
     default:
@@ -175,7 +250,7 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
 
     m_angle += m_speed * delta_time;
 
-    if (m_entity_type == ENEMY) ai_activate(player);
+    if (m_entity_type == ENEMY) ai_activate(player, delta_time);
 
     if (m_animation_indices != NULL)
     {

@@ -2,8 +2,8 @@
 #include "Map.h"
 
 enum EntityType { PLAYER, ENEMY, WEAPON, LOGO, SHADOW };
-enum AIType { SNAKE, WASP, BUG };
-enum AIState { ROAM_HORIZONTAL, ROAM_VERTICAL, FLY, CIRCLE };
+enum AIType { SNAKE, REPTILE, BUG };
+enum AIState { ROAM_HORIZONTAL, ROAM_VERTICAL, RUSH, WALK, NONE };
 
 class Entity
 {
@@ -41,6 +41,7 @@ private:
     EntityType m_entity_type;
     AIType     m_ai_type;
     AIState    m_ai_state;
+    float      m_agro_time = 0.0f;
 
     float m_width = 1;
     float m_height = 1;
@@ -130,9 +131,9 @@ public:
     void move_up() { m_movement.y = 1.0f; };
     void move_down() { m_movement.y = -1.0f; };
 
-    void ai_activate(Entity* player);
+    void ai_activate(Entity* player, float delta_time);
     void ai_snake();
-    void ai_wasp(Entity* player);
+    void ai_reptile(Entity* player, float delta_time);
 
     void activate() { m_is_active = true; };
     void deactivate() { m_is_active = false; };

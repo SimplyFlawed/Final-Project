@@ -124,60 +124,47 @@ void Town::initialise()
 
 
     // ————— ENEMY SET-UP ————— //
-    //SNAKE
     GLuint snake_texture_id = Utility::load_texture("assets/images/snake_spritesheet.png");
 
     m_state.enemies = new Entity[ENEMY_COUNT];
 
-    // Existing
-    m_state.enemies[0].set_entity_type(ENEMY);
-    m_state.enemies[0].set_ai_type(SNAKE);
+    // SNAKES
+    for (int i = 0; i < ENEMY_COUNT; i++)
+    {
+        // Existing
+        m_state.enemies[i].set_entity_type(ENEMY);
+        m_state.enemies[i].set_ai_type(SNAKE);
+        m_state.enemies[i].m_texture_id = snake_texture_id;
+        m_state.enemies[i].set_speed(2.0f);
+
+        // Animation
+        m_state.enemies[i].m_walking[m_state.enemies[i].DOWN] = new int[4] { 0, 4, 8, 12 };
+        m_state.enemies[i].m_walking[m_state.enemies[i].UP] = new int[4] { 1, 5, 9, 13 };
+        m_state.enemies[i].m_walking[m_state.enemies[i].LEFT] = new int[4] { 2, 6, 10, 14 };
+        m_state.enemies[i].m_walking[m_state.enemies[i].RIGHT] = new int[4] { 3, 7, 11, 15 };
+
+        m_state.enemies[i].m_animation_frames = 4;
+        m_state.enemies[i].m_animation_index = 0;
+        m_state.enemies[i].m_animation_time = 0.0f;
+        m_state.enemies[i].m_animation_cols = 4;
+        m_state.enemies[i].m_animation_rows = 4;
+        m_state.enemies[i].set_height(1.0f);
+        m_state.enemies[i].set_width(1.0f);
+    }
+    // SNAKE 1
     m_state.enemies[0].set_ai_state(ROAM_HORIZONTAL);
-    m_state.enemies[0].m_texture_id = snake_texture_id;
     m_state.enemies[0].set_position(glm::vec3(25.0f, -12.0f, 0.0f));
     m_state.enemies[0].set_init_pos(glm::vec3(25.0f, -12.0f, 0.0f));
     m_state.enemies[0].set_movement(glm::vec3(-1.0f, 0.0f, 0.0f));
-    m_state.enemies[0].set_speed(2.0f);
-    
-    // Animation
-    m_state.enemies[0].m_walking[m_state.enemies[0].DOWN] = new int[4] { 0, 4, 8, 12 };
-    m_state.enemies[0].m_walking[m_state.enemies[0].UP] = new int[4] { 1, 5, 9, 13 };
-    m_state.enemies[0].m_walking[m_state.enemies[0].LEFT] = new int[4] { 2, 6, 10, 14 };
-    m_state.enemies[0].m_walking[m_state.enemies[0].RIGHT] = new int[4] { 3, 7, 11, 15 };
-                 
     m_state.enemies[0].m_animation_indices = m_state.enemies[0].m_walking[m_state.enemies[0].LEFT];
-    m_state.enemies[0].m_animation_frames = 4;
-    m_state.enemies[0].m_animation_index = 0;
-    m_state.enemies[0].m_animation_time = 0.0f;
-    m_state.enemies[0].m_animation_cols = 4;
-    m_state.enemies[0].m_animation_rows = 4;
-    m_state.enemies[0].set_height(1.0f);
-    m_state.enemies[0].set_width(1.0f);
 
-    // Existing
-    m_state.enemies[1].set_entity_type(ENEMY);
-    m_state.enemies[1].set_ai_type(SNAKE);
+    // SNAKE 2
     m_state.enemies[1].set_ai_state(ROAM_VERTICAL);
-    m_state.enemies[1].m_texture_id = snake_texture_id;
     m_state.enemies[1].set_position(glm::vec3(19.0f, -10.0f, 0.0f));
     m_state.enemies[1].set_init_pos(glm::vec3(19.0f, -10.0f, 0.0f));
     m_state.enemies[1].set_movement(glm::vec3(0.0f, -1.0f, 0.0f));
-    m_state.enemies[1].set_speed(2.0f);
 
-    // Animation
-    m_state.enemies[1].m_walking[m_state.enemies[1].DOWN] = new int[4] { 0, 4, 8, 12 };
-    m_state.enemies[1].m_walking[m_state.enemies[1].UP] = new int[4] { 1, 5, 9, 13 };
-    m_state.enemies[1].m_walking[m_state.enemies[1].LEFT] = new int[4] { 2, 6, 10, 14 };
-    m_state.enemies[1].m_walking[m_state.enemies[1].RIGHT] = new int[4] { 3, 7, 11, 15 };
-
-    m_state.enemies[1].m_animation_indices = m_state.enemies[1].m_walking[m_state.enemies[1].LEFT];
-    m_state.enemies[1].m_animation_frames = 4;
-    m_state.enemies[1].m_animation_index = 0;
-    m_state.enemies[1].m_animation_time = 0.0f;
-    m_state.enemies[1].m_animation_cols = 4;
-    m_state.enemies[1].m_animation_rows = 4;
-    m_state.enemies[1].set_height(1.0f);
-    m_state.enemies[1].set_width(1.0f);
+    m_state.enemies[1].m_animation_indices = m_state.enemies[1].m_walking[m_state.enemies[1].DOWN];
 
     // Shadows
     for (int i = 0; i < ENEMY_COUNT; i++)
