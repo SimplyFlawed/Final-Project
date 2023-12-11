@@ -168,7 +168,7 @@ void Entity::ai_reptile(Entity* player, float delta_time)
 
     switch (m_ai_state) {
     case RUSH:
-        set_speed(4.0f);
+        set_speed(3.0f);
 
         if (x_distance > y_distance)
         {
