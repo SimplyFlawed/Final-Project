@@ -30,11 +30,12 @@
 #include "Entity.h"
 #include "Map.h"
 #include "Utility.h"
+#include "Effects.h"
 #include "Scene.h"
 #include "scenes/StartScreen.h"
 #include "scenes/town.h"
 #include "scenes/dungeon.h"
-//#include "scenes/LevelC.h"
+#include "scenes/BossRoom.h"
 
 // ————— CONSTANTS ————— //
 const int   WINDOW_WIDTH = 800,
@@ -65,8 +66,10 @@ GLuint font_texture_id;
 Scene* g_current_scene;
 Town* g_town_level;
 Dungeon* g_dungeon_level;
-//LevelC* g_level_c;
+BossRoom* g_boss_room;
 StartScreen* g_start_screen;
+
+Effects* g_effects;
 
 std::vector<Scene*> g_levels;
 
@@ -85,8 +88,9 @@ int g_number_of_lives = 3;
 
 void switch_to_scene(Scene* scene)
 {
-    if (scene == g_town_level || scene == g_start_screen) { g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH); }
-    else { g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH); }
+    if (scene == g_dungeon_level) { g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH);
+    }
+    else { g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH); }
 
     g_view_matrix = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-7.0f, 7.0f, -5.25f, 5.25f, -1.0f, 1.0f);
@@ -154,23 +158,23 @@ void initialise()
     g_dungeon_level->BG_OPACITY = 1.0f;
     g_dungeon_level->m_state.next_scene_id = 2;
 
-
-    /*
-    g_level_c = new LevelC();
-    g_level_c->BG_RED = 158.0f / 255.0f;
-    g_level_c->BG_GREEN = 213.0f / 255.0f;
-    g_level_c->BG_BLUE = 222.0f / 255.0f;
-    g_level_c->BG_OPACITY = 1.0f;
-    */
+    g_boss_room = new BossRoom();
+    g_boss_room->BG_RED = 20.0f / 255.0f;
+    g_boss_room->BG_GREEN = 14.0f / 255.0f;
+    g_boss_room->BG_BLUE = 9.0f / 255.0f;
+    g_boss_room->BG_OPACITY = 1.0f;
 
     g_levels.push_back(g_town_level);
     g_levels.push_back(g_dungeon_level);
-    //g_levels.push_back(g_level_c);
+    g_levels.push_back(g_boss_room);
 
     switch_to_scene(g_start_screen);
 
     // ————— TEXT ————— //
     font_texture_id = Utility::load_texture("assets/fonts/font1.png");
+
+    // ----- EFFECTS ————— //
+    g_effects = new Effects(g_projection_matrix, g_view_matrix);
 
     // ————— BLENDING ————— //
     glEnable(GL_BLEND);
@@ -204,7 +208,11 @@ void process_input()
                 break;
 
             case SDLK_RETURN:
-                if (g_current_scene == g_start_screen) switch_to_scene(g_town_level);
+                if (g_current_scene == g_start_screen)
+                {
+                    g_effects->start(FADEIN, 1.0f);
+                    switch_to_scene(g_town_level);
+                }
                 break;
 
             default:
@@ -269,11 +277,14 @@ void game_loop(float delta_time)
     while (delta_time >= FIXED_TIMESTEP)
     {
         g_current_scene->update(FIXED_TIMESTEP);
+        g_effects->update(FIXED_TIMESTEP);
 
         delta_time -= FIXED_TIMESTEP;
     }
 
     g_accumulator = delta_time;
+
+    g_view_matrix = glm::translate(g_view_matrix, g_effects->m_view_offset);
 
     // ————— PLAYER CAMERA ————— //
     float camera_x;
@@ -307,24 +318,38 @@ void game_loop(float delta_time)
 
     g_view_matrix = glm::mat4(1.0f);
 
-
     g_view_matrix = glm::translate(g_view_matrix, glm::vec3(camera_x, camera_y, 0.0f));
 
     // ————— NEXT LEVEL ————— //
     if (g_current_scene->m_state.player->m_next_level)
     {
         switch_to_scene(g_levels[g_current_scene->m_state.next_scene_id]);
+        g_effects->start(FADEIN, 1.0f);
     }
 
+    // ————— PLAYER DEATH ————— //
     if (g_current_scene->m_state.player->m_player_dead) 
     {
         --g_number_of_lives;
-        Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->DEATH_SFX], 0);
-        if (g_number_of_lives > 0) g_current_scene->initialise();
+        if (g_number_of_lives > 0) 
+        {
+            g_current_scene->initialise();
+            Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->DEATH_SFX], 0);
+        }
     }
 
-    if (g_number_of_lives == 0) g_lose = true;
-    if (g_current_scene->m_state.player->m_player_win) g_win = true;
+    if (g_number_of_lives == 0) 
+    {
+        g_lose = true;
+        Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->GAMEOVER_SFX], 0);
+
+    }
+    if (g_current_scene->m_state.player->m_player_win) 
+    {
+        g_win = true;
+        Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->WIN_SFX], 0);
+
+    }
 
 }
 
@@ -354,8 +379,9 @@ void render()
     glUseProgram(g_shader_program.get_program_id());
     g_current_scene->render(&g_shader_program);
 
-    if (g_win) Utility::draw_text(&g_shader_program, font_texture_id, "YOU WIN!", 0.4f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x + 1.5f, g_current_scene->m_state.player->get_position().y - 2.0f, 0.0f));
-    if (g_lose) Utility::draw_text(&g_shader_program, font_texture_id, "YOU LOSE!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y + 2.0f, 0.0f));
+    if (g_win) Utility::draw_text(&g_shader_program, font_texture_id, "YOU WIN!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y, 0.0f));
+    if (g_lose) Utility::draw_text(&g_shader_program, font_texture_id, "YOU LOSE!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y, 0.0f));
+    g_effects->render();
 
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -366,7 +392,8 @@ void shutdown()
     delete g_start_screen;
     delete g_town_level;
     delete g_dungeon_level;
-    //delete g_level_c;
+    delete g_boss_room;
+    delete g_effects;
 }
 
 // ————— GAME LOOP ————— //

@@ -130,24 +130,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Effects.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="scenes\Town.cpp" />
     <ClCompile Include="scenes\Dungeon.cpp" />
-    <ClCompile Include="scenes\LevelC.cpp" />
+    <ClCompile Include="scenes\BossRoom.cpp" />
     <ClCompile Include="scenes\StartScreen.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Effects.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="scenes\Town.h" />
     <ClInclude Include="scenes\Dungeon.h" />
-    <ClInclude Include="scenes\LevelC.h" />
+    <ClInclude Include="scenes\BossRoom.h" />
     <ClInclude Include="scenes\StartScreen.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="stb_image.h" />

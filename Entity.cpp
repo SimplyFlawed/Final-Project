@@ -103,7 +103,8 @@ void Entity::ai_activate(Entity* player, float delta_time)
         ai_reptile(player, delta_time);
         break;
 
-    case BUG:
+    case SPIRIT:
+        ai_spirit(player, delta_time);
         break;
 
     default:
@@ -154,22 +155,14 @@ void Entity::ai_reptile(Entity* player, float delta_time)
     { 
         m_agro_time += delta_time;
 
-        if (m_agro_time >= 5.0f) 
-        {
-            m_agro_time = 0.0f;
-        }
-        else if (m_agro_time >= 3.0f) {
-            set_ai_state(NONE);
-        }
-        else if (m_agro_time >= 1.0f)
-        {
-            set_ai_state(RUSH);
-        }
+        if (m_agro_time >= 5.0f) { m_agro_time = 0.0f; }
+        else if (m_agro_time >= 3.0f) {  set_ai_state(STAND); }
+        else if (m_agro_time >= 1.0f) { set_ai_state(RUSH); }
         else { set_ai_state(WALK); }
     }
     else 
     { 
-        set_ai_state(NONE);
+        set_ai_state(STAND);
         m_agro_time = 0.0f;
     }
 
@@ -181,10 +174,12 @@ void Entity::ai_reptile(Entity* player, float delta_time)
         {
             if (m_position.x > player->get_position().x) {
                 m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+                m_animation_indices = m_walking[LEFT];
             }
             else
             {
                 m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+                m_animation_indices = m_walking[RIGHT];
             }
         }
         else
@@ -230,8 +225,76 @@ void Entity::ai_reptile(Entity* player, float delta_time)
         }
         break;
 
-    case NONE:
+    case STAND:
         m_movement = glm::vec3(0.0f);
+        break;
+
+    default:
+        break;
+    }
+}
+
+void Entity::ai_spirit(Entity* player, float delta_time)
+{
+    float x_distance = fabs(m_position.x - player->get_position().x);
+    float y_distance = fabs(m_position.y - player->get_position().y);
+
+    m_agro_time += delta_time;
+
+    if (m_agro_time >= 8.0f) { m_agro_time = 0.0f; }
+    else if (m_agro_time >= 4.0f) { set_ai_state(MOVE_AWAY); }
+    else { set_ai_state(MOVE_TOWARDS); }
+
+    switch (m_ai_state)
+    {
+    case MOVE_AWAY:
+        set_speed(1.5f);
+
+        if (x_distance < y_distance)
+        {
+            if (m_position.x > player->get_position().x) {
+                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+            }
+        }
+        else
+        {
+            if (m_position.y > player->get_position().y) {
+                m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+            }
+            else
+            {
+                m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
+            }
+        }
+        break;
+
+    case MOVE_TOWARDS:
+        set_speed(1.0f);
+
+        if (x_distance > y_distance)
+        {
+            if (m_position.x > player->get_position().x) {
+                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+            }
+        }
+        else
+        {
+            if (m_position.y > player->get_position().y) {
+                m_movement = glm::vec3(0.0f, -1.0f, 0.0f);
+            }
+            else
+            {
+                m_movement = glm::vec3(0.0f, 1.0f, 0.0f);
+            }
+        }
         break;
 
     default:
@@ -254,7 +317,7 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
 
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0 || get_entity_type() == WEAPON)
+        if (glm::length(m_movement) != 0 || get_entity_type() == WEAPON || get_ai_type() == SPIRIT)
         {
             m_animation_time += delta_time;
             float frames_per_second = (float)1 / SECONDS_PER_FRAME;
@@ -271,6 +334,7 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
                         player->weapon->deactivate();
                         player->m_animation_indices = player->m_walking[player->m_facing];
                     }
+                    if (get_ai_type() == SPIRIT) m_animation_indices = m_walking[IDLE];
                     m_animation_index = 0;
                 }
             }
@@ -304,17 +368,30 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
         }
         player->weapon->activate();
         player->weapon->m_animation_indices = weapon->m_attack[player->m_facing];
+        player->weapon->m_animation_index = 0;
         Mix_PlayChannel(-1, sfx[0], 0);
     }
 
     // SWORD COLLISION
         for (int i = 0; i < object_count; i++)
         {
+            objects[i].m_damage_cooldown += delta_time;
             if (player->weapon->check_collision(&objects[i]) && objects[i].get_entity_type() == ENEMY)
             {
-                objects[i].deactivate();
-                objects[i].shadow->deactivate();
-                Mix_PlayChannel(-1, sfx[1], 0);
+                if (objects[i].m_damage_cooldown >= 1.0f)
+                { 
+                    objects[i].m_damage_cooldown = 0.0f;
+                    objects[i].m_hp--;
+                    objects[i].m_animation_indices = objects[i].m_walking[DOWN];
+                    objects[i].m_animation_index = 0;
+                    Mix_PlayChannel(-1, sfx[1], 0);
+                }
+                if (objects[i].m_hp < 1)
+                {
+                    objects[i].deactivate();
+                    objects[i].shadow->deactivate();
+                    if (objects[i].get_ai_type() == SPIRIT) m_player_win = true;
+                }
             }
         }
 
@@ -331,11 +408,11 @@ void Entity::update(float delta_time, Entity* player, Entity* objects, int objec
     // We make two calls to our check_collision methods, one for the collidable objects and one for
     // the map.
     m_position.y += m_velocity.y * delta_time;
-    check_collision_y(objects, object_count);
+    if (get_entity_type() != WEAPON) check_collision_y(objects, object_count);
     check_collision_y(map);
 
     m_position.x += m_velocity.x * delta_time;
-    check_collision_x(objects, object_count);
+    if (get_entity_type() != WEAPON) check_collision_x(objects, object_count);
     check_collision_x(map);
 
     m_model_matrix = glm::mat4(1.0f);
@@ -458,7 +535,9 @@ void const Entity::check_collision_y(Map* map)
 
     }
 
-    if (m_collided_top && (map->check_tile(top) == 111) || map->check_tile(top) == 112 || map->check_tile(top) == 142 || map->check_tile(top) == 143) m_next_level = true;
+    if (m_collided_top && (map->check_tile(top) == 111 || map->check_tile(top) == 112)) m_next_level = true;
+    if (m_collided_top && (map->check_tile(top) == 142 || map->check_tile(top) == 143)) m_next_level = true;
+
     if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 173 || map->check_tile(bottom) == 173)) m_player_dead = true;
 }
 

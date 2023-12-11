@@ -38,11 +38,13 @@ class Scene {
 public:
     // ————— ATTRIBUTES ————— //
     int m_number_of_enemies = 1,
-        m_number_of_sfx     = 3;
+        m_number_of_sfx     = 5;
 
     const int SWORD_SFX = 0,
               KILL_SFX = 1,
-              DEATH_SFX = 2;
+              DEATH_SFX = 2,
+              GAMEOVER_SFX = 3,
+              WIN_SFX = 4;
 
     // ----- BACKGROUND COLOR ----- //
     float BG_RED,

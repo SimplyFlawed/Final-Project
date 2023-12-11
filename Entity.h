@@ -2,8 +2,8 @@
 #include "Map.h"
 
 enum EntityType { PLAYER, ENEMY, WEAPON, LOGO, SHADOW };
-enum AIType { SNAKE, REPTILE, BUG };
-enum AIState { ROAM_HORIZONTAL, ROAM_VERTICAL, RUSH, WALK, NONE };
+enum AIType { SNAKE, REPTILE, SPIRIT };
+enum AIState { ROAM_HORIZONTAL, ROAM_VERTICAL, RUSH, WALK, STAND, MOVE_AWAY, MOVE_TOWARDS };
 
 class Entity
 {
@@ -66,8 +66,6 @@ public:
             m_animation_idle
         };
 
-    
-
     int m_animation_frames = 0,
         m_animation_index = 0,
         m_animation_cols = 0,
@@ -77,6 +75,10 @@ public:
     float   m_animation_time = 0.0f;
 
     int m_facing;
+
+    // ––––– HEALTH ––––– //
+    int m_hp;
+    float m_damage_cooldown= 0.0f;
 
     // ––––– ATTACKING ––––– //
     int** m_attack = new int* [4]
@@ -134,6 +136,7 @@ public:
     void ai_activate(Entity* player, float delta_time);
     void ai_snake();
     void ai_reptile(Entity* player, float delta_time);
+    void ai_spirit(Entity* player, float delta_time);
 
     void activate() { m_is_active = true; };
     void deactivate() { m_is_active = false; };
@@ -152,6 +155,7 @@ public:
     float      const get_speed()          const { return m_speed; };
     int        const get_width()          const { return m_width; };
     int        const get_height()         const { return m_height; };
+    int        const get_hp()             const { return m_hp; };
     glm::mat4  const get_model_matrix()   const { return m_model_matrix; };
 
     // ————— SETTERS ————— //
@@ -171,5 +175,6 @@ public:
     void const set_angle(float new_angle) { m_angle = new_angle; };
     void const set_radius(float new_radius) { m_radius = new_radius; };
     void const set_init_pos(glm::vec3 new_position) { m_init_pos = new_position; };
-    void const set_model_matrix(glm::mat4 new_matrix) { m_model_matrix = new_matrix; }
+    void const set_model_matrix(glm::mat4 new_matrix) { m_model_matrix = new_matrix; };
+    void const set_hp(int new_hp) { m_hp = new_hp; };
 };

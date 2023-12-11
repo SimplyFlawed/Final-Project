@@ -62,6 +62,9 @@ Dungeon::~Dungeon()
     Mix_FreeMusic(m_state.bgm);
     Mix_FreeChunk(m_state.sfx[SWORD_SFX]);
     Mix_FreeChunk(m_state.sfx[KILL_SFX]);
+    Mix_FreeChunk(m_state.sfx[DEATH_SFX]);
+    Mix_FreeChunk(m_state.sfx[GAMEOVER_SFX]);
+    Mix_FreeChunk(m_state.sfx[WIN_SFX]);
 
     for (int i = 0; i < m_number_of_sfx; i++)
     {
@@ -155,6 +158,7 @@ void Dungeon::initialise()
         m_state.enemies[i].set_ai_type(SNAKE);
         m_state.enemies[i].m_texture_id = snake_texture_id;
         m_state.enemies[i].set_speed(2.0f);
+        m_state.enemies[i].set_hp(1);
 
         // Animation
         m_state.enemies[i].m_walking[m_state.enemies[i].DOWN] = new int[4] { 0, 4, 8, 12 };
@@ -191,9 +195,10 @@ void Dungeon::initialise()
         // Existing
         m_state.enemies[i].set_entity_type(ENEMY);
         m_state.enemies[i].set_ai_type(REPTILE);
-        m_state.enemies[i].set_ai_state(NONE);
+        m_state.enemies[i].set_ai_state(STAND);
         m_state.enemies[i].m_texture_id = reptile_texture_id;
         m_state.enemies[i].set_speed(0.5f);
+        m_state.enemies[i].set_hp(1);
 
         // Animation
         m_state.enemies[i].m_walking[m_state.enemies[i].DOWN] = new int[4] { 0, 4, 8, 12 };
@@ -259,8 +264,14 @@ void Dungeon::initialise()
     m_state.sfx[KILL_SFX] = Mix_LoadWAV("assets/audio/Kill.wav");
     Mix_VolumeChunk(m_state.sfx[KILL_SFX], MIX_MAX_VOLUME / 64.0f);
 
-    m_state.sfx[DEATH_SFX] = Mix_LoadWAV("assets/audio/DEATH.wav");
+    m_state.sfx[DEATH_SFX] = Mix_LoadWAV("assets/audio/Death.wav");
     Mix_VolumeChunk(m_state.sfx[DEATH_SFX], MIX_MAX_VOLUME / 16.0f);
+
+    m_state.sfx[GAMEOVER_SFX] = Mix_LoadWAV("assets/audio/GameOver.wav");
+    Mix_VolumeChunk(m_state.sfx[GAMEOVER_SFX], MIX_MAX_VOLUME / 16.0f);
+
+    m_state.sfx[WIN_SFX] = Mix_LoadWAV("assets/audio/Win.wav");
+    Mix_VolumeChunk(m_state.sfx[WIN_SFX], MIX_MAX_VOLUME / 16.0f);
 }
 
 void Dungeon::update(float delta_time)

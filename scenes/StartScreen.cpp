@@ -21,6 +21,9 @@ StartScreen::~StartScreen()
     Mix_FreeMusic(m_state.bgm);
     Mix_FreeChunk(m_state.sfx[SWORD_SFX]);
     Mix_FreeChunk(m_state.sfx[KILL_SFX]);
+    Mix_FreeChunk(m_state.sfx[DEATH_SFX]);
+    Mix_FreeChunk(m_state.sfx[GAMEOVER_SFX]);
+    Mix_FreeChunk(m_state.sfx[WIN_SFX]);
 
     for (int i = 0; i < m_number_of_sfx; i++)
     {

@@ -1,9 +1,9 @@
 #include "../Scene.h"
 
-class LevelC : public Scene {
+class BossRoom : public Scene {
 public:    
     // ————— CONSTRUCTOR ————— //
-    ~LevelC();
+    ~BossRoom();
     
     // ————— METHODS ————— //
     void initialise() override;
