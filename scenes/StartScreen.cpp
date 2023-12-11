@@ -1,7 +1,7 @@
 /**
 * Author: Raymond Lin
-* Assignment: Platformer
-* Date due: 2023-12-02, 11:59pm
+* Assignment: Knight's Descent
+* Date due: 2023-12-15, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -55,5 +55,5 @@ void StartScreen::render(ShaderProgram *program)
 {
     m_state.enemies->render(program);
     Utility::draw_text(program, text_texture_id, "Press Enter to Start", 0.5f, 0.0f, glm::vec3(-4.75f, -2.25f, 0.0f));
-    Utility::draw_text(program, text_texture_id, "Defeat the Spirit Boss to win", 0.35f, -0.1f, glm::vec3(-3.5f, -3.25f, 0.0f));
+    Utility::draw_text(program, text_texture_id, "Defeat the Spirit Boss to win", 0.4f, -0.2f, glm::vec3(-2.75f, -3.25f, 0.0f));
 }

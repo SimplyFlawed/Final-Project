@@ -1,7 +1,7 @@
 /**
 * Author: Raymond Lin
-* Assignment: Platformer
-* Date due: 2023-12-02, 11:59pm
+* Assignment: Knight's Descent
+* Date due: 2023-12-15, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -86,17 +86,32 @@ float   g_previous_ticks = 0.0f,
 
 int g_number_of_lives = 3;
 
-void switch_to_scene(Scene* scene)
+void use_texture_shaders()
 {
-    if (scene == g_dungeon_level) { g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH);
-    }
-    else { g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH); }
-
-    g_view_matrix = glm::mat4(1.0f);
+    g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
     g_projection_matrix = glm::ortho(-7.0f, 7.0f, -5.25f, 5.25f, -1.0f, 1.0f);
+
     g_shader_program.set_projection_matrix(g_projection_matrix);
     g_shader_program.set_view_matrix(g_view_matrix);
+
     glUseProgram(g_shader_program.get_program_id());
+}
+
+void use_lighting_shaders()
+{
+    g_shader_program.load(V_LIT_SHADER_PATH, F_LIT_SHADER_PATH);
+    g_projection_matrix = glm::ortho(-7.0f, 7.0f, -5.25f, 5.25f, -1.0f, 1.0f);
+
+    g_shader_program.set_projection_matrix(g_projection_matrix);
+    g_shader_program.set_view_matrix(g_view_matrix);
+
+    glUseProgram(g_shader_program.get_program_id());
+}
+
+void switch_to_scene(Scene* scene)
+{
+    if (scene == g_dungeon_level) { use_lighting_shaders(); }
+    else { use_texture_shaders(); }
     glClearColor(scene->BG_RED, scene->BG_GREEN, scene->BG_BLUE, scene->BG_OPACITY);
 
     g_current_scene = scene;
@@ -106,6 +121,42 @@ void switch_to_scene(Scene* scene)
 void start_attack_animation(int m_facing)
 {
     g_current_scene->m_state.player->m_animation_indices = g_current_scene->m_state.player->m_attack[g_current_scene->m_state.player->m_facing];
+}
+
+void draw_lives() 
+{
+    if (g_current_scene == g_start_screen) return;
+
+    float x_pos;
+    float y_pos;
+
+    if (g_current_scene->m_state.player->get_position().x < 7.5f)
+    {
+        x_pos = 1.0f;
+    }
+    else if (g_current_scene->m_state.player->get_position().x > g_current_scene->m_state.map->get_width() - 7.5f)
+    {
+        x_pos = g_current_scene->m_state.map->get_width() - 14.0f;
+    }
+    else
+    {
+        x_pos = g_current_scene->m_state.player->get_position().x - 6.5f;
+    }
+
+    if (g_current_scene->m_state.player->get_position().y > -5.0f)
+    {
+        y_pos = -0.25f;
+    }
+    else if (g_current_scene->m_state.player->get_position().y < -(g_current_scene->m_state.map->get_height() - 6.0f))
+    {
+        y_pos = -(g_current_scene->m_state.map->get_height() - 10.75f);
+    }
+    else
+    {
+        y_pos = g_current_scene->m_state.player->get_position().y + 4.75f;
+    }
+
+    Utility::draw_text(&g_shader_program, font_texture_id, "Lives: " + std::to_string(g_number_of_lives), 0.55f, -0.3f, glm::vec3(x_pos, y_pos, 0.0f));
 }
 
 void initialise()
@@ -379,8 +430,11 @@ void render()
     glUseProgram(g_shader_program.get_program_id());
     g_current_scene->render(&g_shader_program);
 
+    use_texture_shaders();
+    draw_lives();
     if (g_win) Utility::draw_text(&g_shader_program, font_texture_id, "YOU WIN!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y, 0.0f));
     if (g_lose) Utility::draw_text(&g_shader_program, font_texture_id, "YOU LOSE!", 0.5f, 0.0f, glm::vec3(g_current_scene->m_state.player->get_position().x - 2.0f, g_current_scene->m_state.player->get_position().y, 0.0f));
+    if (g_current_scene == g_dungeon_level) use_lighting_shaders();
     g_effects->render();
 
     SDL_GL_SwapWindow(g_display_window);

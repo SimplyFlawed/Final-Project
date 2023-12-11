@@ -1,7 +1,7 @@
 /**
 * Author: Raymond Lin
-* Assignment: Platformer
-* Date due: 2023-12-02, 11:59pm
+* Assignment: Knight's Descent
+* Date due: 2023-12-15, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -22,17 +22,18 @@ unsigned int BOSS_ROOM_DATA[] =
     147,145,182,183,183,182,182,183,182,183,183,183,183,182,147,145,
     147,145,180,180,180,181,180,180,181,181,180,181,181,180,147,145,
     147,145,180,180,181,181,181,180,181,181,180,181,180,181,147,145,
-    147,145,180,181,180,180,180,180,181,180,181,181,180,180,147,145,
+    147,145,180,181,180,173,180,180,181,180,173,181,180,180,147,145,
     147,145,180,181,180,181,180,180,180,180,180,181,181,180,147,145,
     147,145,180,181,181,181,180,180,180,180,181,181,180,181,147,145,
     147,145,180,181,180,181,180,181,181,180,180,181,180,181,147,145,
     147,145,181,180,180,180,180,180,181,181,180,181,181,180,147,145,
-    147,145,181,181,181,180,180,181,181,181,180,180,181,181,147,145,
+    147,145,181,181,181,173,180,181,181,181,173,180,181,181,147,145,
     147,145,180,181,180,181,180,181,180,181,181,180,181,180,147,145,
     147,145,181,180,180,180,181,181,181,180,181,180,181,181,147,145,
     147,145,180,181,181,180,180,180,181,181,180,180,180,181,147,145,
     147,145,180,181,136,158,158,158,158,158,158,158,158,158,159,145,
     147,145,181,180,147,144,132,132,132,156,156,144,132,132,144,145
+
 
 
 };
@@ -140,7 +141,7 @@ void BossRoom::initialise()
     m_state.enemies->m_texture_id = spirit_texture_id;
     m_state.enemies->set_position(glm::vec3(7.5f, -7.5f, 0.0f));
     m_state.enemies->set_init_pos(glm::vec3(7.5f, -7.5f, 0.0f));
-    m_state.enemies->set_scale(glm::vec3(2.0f, 2.0f, 0.0f));
+    m_state.enemies->set_scale(glm::vec3(3.0f, 3.0f, 0.0f));
     m_state.enemies->set_movement(glm::vec3(0.0f));
     m_state.enemies->set_speed(1.0f);
     m_state.enemies->set_hp(3);
@@ -155,8 +156,8 @@ void BossRoom::initialise()
     m_state.enemies->m_animation_time = 0.0f;
     m_state.enemies->m_animation_cols = 5;
     m_state.enemies->m_animation_rows = 2;
-    m_state.enemies->set_height(1.8f);
-    m_state.enemies->set_width(1.8f);
+    m_state.enemies->set_height(2.0f);
+    m_state.enemies->set_width(2.0f);
 
     m_state.enemies->shadow = new Entity();
     m_state.enemies->shadow->set_entity_type(SHADOW);

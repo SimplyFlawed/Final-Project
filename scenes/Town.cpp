@@ -1,7 +1,7 @@
 /**
 * Author: Raymond Lin
-* Assignment: Platformer
-* Date due: 2023-12-02, 11:59pm
+* Assignment: Knight's Descent
+* Date due: 2023-12-15, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -90,8 +90,8 @@ void Town::initialise()
     m_state.player->m_animation_cols = 4;
     m_state.player->m_animation_rows = 7;
     m_state.player->m_facing = m_state.player->DOWN;
-    m_state.player->set_height(0.8f);
-    m_state.player->set_width(0.8f);
+    m_state.player->set_height(0.7f);
+    m_state.player->set_width(0.7f);
 
     // Shadow
     m_state.player->shadow = new Entity();

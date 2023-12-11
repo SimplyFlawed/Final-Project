@@ -1,7 +1,7 @@
 /**
 * Author: Raymond Lin
-* Assignment: Platformer
-* Date due: 2023-12-02, 11:59pm
+* Assignment: Knight's Descent
+* Date due: 2023-12-15, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -248,7 +248,7 @@ void Entity::ai_spirit(Entity* player, float delta_time)
     switch (m_ai_state)
     {
     case MOVE_AWAY:
-        set_speed(1.5f);
+        set_speed(m_hp < 2 ? 2.5f : 1.5f);
 
         if (x_distance < y_distance)
         {
@@ -273,7 +273,7 @@ void Entity::ai_spirit(Entity* player, float delta_time)
         break;
 
     case MOVE_TOWARDS:
-        set_speed(1.0f);
+        set_speed(m_hp < 2 ? 2.0f : 1.0f);
 
         if (x_distance > y_distance)
         {
@@ -538,7 +538,8 @@ void const Entity::check_collision_y(Map* map)
     if (m_collided_top && (map->check_tile(top) == 111 || map->check_tile(top) == 112)) m_next_level = true;
     if (m_collided_top && (map->check_tile(top) == 142 || map->check_tile(top) == 143)) m_next_level = true;
 
-    if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 173 || map->check_tile(bottom) == 173)) m_player_dead = true;
+    //if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 173 || map->check_tile(bottom) == 173)) m_player_dead = true;
+    if (map->check_tile(bottom) == 173) m_player_dead = true;
 }
 
 void const Entity::check_collision_x(Map* map)
@@ -563,7 +564,7 @@ void const Entity::check_collision_x(Map* map)
         m_collided_right = true;
     }
 
-    if ((m_collided_right || m_collided_left) && (map->check_tile(right) == 173 || map->check_tile(left) == 173)) m_player_dead = true;
+    if (map->check_tile(right) == 173 || map->check_tile(left) == 173) m_player_dead = true;
 }
 
 
