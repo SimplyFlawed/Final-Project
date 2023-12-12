@@ -159,6 +159,15 @@ void draw_lives()
     Utility::draw_text(&g_shader_program, font_texture_id, "Lives: " + std::to_string(g_number_of_lives), 0.55f, -0.3f, glm::vec3(x_pos, y_pos, 0.0f));
 }
 
+void restart()
+{
+    g_number_of_lives = 3;
+    g_win = false;
+    g_lose = false;
+    switch_to_scene(g_start_screen);
+    g_view_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+}
+
 void initialise()
 {
     // ————— GENERAL ————— //
@@ -245,6 +254,10 @@ void process_input()
 
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
+            case SDLK_r:
+                // Restart the game
+                restart();
+                break;
             case SDLK_q:
                 // Quit the game with a keystroke
                 g_game_is_running = false;
