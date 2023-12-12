@@ -91,7 +91,7 @@ void Town::initialise()
     m_state.player->m_animation_cols = 4;
     m_state.player->m_animation_rows = 7;
     m_state.player->m_facing = m_state.player->DOWN;
-    m_state.player->set_height(0.7f);
+    m_state.player->set_height(0.9f);
     m_state.player->set_width(0.7f);
 
     // Shadow
@@ -157,8 +157,8 @@ void Town::initialise()
     }
     // SNAKE 1
     m_state.enemies[0].set_ai_state(ROAM_HORIZONTAL);
-    m_state.enemies[0].set_position(glm::vec3(25.0f, -12.0f, 0.0f));
-    m_state.enemies[0].set_init_pos(glm::vec3(25.0f, -12.0f, 0.0f));
+    m_state.enemies[0].set_position(glm::vec3(25.0f, -11.75f, 0.0f));
+    m_state.enemies[0].set_init_pos(glm::vec3(25.0f, -11.75f, 0.0f));
     m_state.enemies[0].set_movement(glm::vec3(-1.0f, 0.0f, 0.0f));
     m_state.enemies[0].m_animation_indices = m_state.enemies[0].m_walking[m_state.enemies[0].LEFT];
 

@@ -177,8 +177,8 @@ void Dungeon::initialise()
     }
     // SNAKE 1
     m_state.enemies[0].set_ai_state(ROAM_HORIZONTAL);
-    m_state.enemies[0].set_position(glm::vec3(11.0f, -15.0f, 0.0f));
-    m_state.enemies[0].set_init_pos(glm::vec3(11.0f, -15.0f, 0.0f));
+    m_state.enemies[0].set_position(glm::vec3(11.0f, -14.75f, 0.0f));
+    m_state.enemies[0].set_init_pos(glm::vec3(11.0f, -14.75f, 0.0f));
     m_state.enemies[0].set_movement(glm::vec3(-1.0f, 0.0f, 0.0f));
     m_state.enemies[0].m_animation_indices = m_state.enemies[0].m_walking[m_state.enemies[0].LEFT];
 
@@ -216,29 +216,29 @@ void Dungeon::initialise()
         m_state.enemies[i].set_width(1.0f);
     }
     // REPTILE 1
-    m_state.enemies[2].set_position(glm::vec3(6.0f, -27.0f, 0.0f));
-    m_state.enemies[2].set_init_pos(glm::vec3(6.0f, -27.0f, 0.0f));
+    m_state.enemies[2].set_position(glm::vec3(6.0f, -26.75f, 0.0f));
+    m_state.enemies[2].set_init_pos(glm::vec3(6.0f, -26.75f, 0.0f));
     m_state.enemies[2].set_movement(glm::vec3(0.0f, 0.0f, 0.0f));
 
     m_state.enemies[2].m_animation_indices = m_state.enemies[2].m_walking[m_state.enemies[2].RIGHT];
 
     // REPTILE 2
-    m_state.enemies[3].set_position(glm::vec3(14.0f, -13.0f, 0.0f));
-    m_state.enemies[3].set_init_pos(glm::vec3(14.0f, -13.0f, 0.0f));
+    m_state.enemies[3].set_position(glm::vec3(14.0f, -12.75f, 0.0f));
+    m_state.enemies[3].set_init_pos(glm::vec3(14.0f, -12.75f, 0.0f));
     m_state.enemies[3].set_movement(glm::vec3(0.0f, 0.0f, 0.0f));
 
     m_state.enemies[3].m_animation_indices = m_state.enemies[3].m_walking[m_state.enemies[3].LEFT];
 
     // REPTILE 3
-    m_state.enemies[4].set_position(glm::vec3(14.0f, -15.0f, 0.0f));
-    m_state.enemies[4].set_init_pos(glm::vec3(14.0f, -15.0f, 0.0f));
+    m_state.enemies[4].set_position(glm::vec3(14.0f, -14.75f, 0.0f));
+    m_state.enemies[4].set_init_pos(glm::vec3(14.0f, -14.75f, 0.0f));
     m_state.enemies[4].set_movement(glm::vec3(0.0f, 0.0f, 0.0f));
 
     m_state.enemies[4].m_animation_indices = m_state.enemies[4].m_walking[m_state.enemies[4].LEFT];
 
     // REPTILE 4
-    m_state.enemies[5].set_position(glm::vec3(6.0f, -7.0f, 0.0f));
-    m_state.enemies[5].set_init_pos(glm::vec3(6.0f, -7.0f, 0.0f));
+    m_state.enemies[5].set_position(glm::vec3(6.0f, -6.75f, 0.0f));
+    m_state.enemies[5].set_init_pos(glm::vec3(6.0f, -6.75f, 0.0f));
     m_state.enemies[5].set_movement(glm::vec3(0.0f, 0.0f, 0.0f));
 
     m_state.enemies[5].m_animation_indices = m_state.enemies[5].m_walking[m_state.enemies[5].RIGHT];

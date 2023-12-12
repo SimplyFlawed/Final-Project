@@ -482,14 +482,26 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 void const Entity::check_collision_y(Map* map)
 {
     // Probes for tiles above
+    /*
     glm::vec3 top = glm::vec3(m_position.x, m_position.y + (m_height / 2), m_position.z);
     glm::vec3 top_left = glm::vec3(m_position.x - (m_width / 2), m_position.y + (m_height / 2), m_position.z);
     glm::vec3 top_right = glm::vec3(m_position.x + (m_width / 2), m_position.y + (m_height / 2), m_position.z);
+    */
+    // Moves collision to bottom half of sprite
+    glm::vec3 top = glm::vec3(m_position.x, m_position.y, m_position.z);
+    glm::vec3 top_left = glm::vec3(m_position.x - (m_width / 2), m_position.y, m_position.z);
+    glm::vec3 top_right = glm::vec3(m_position.x + (m_width / 2), m_position.y, m_position.z);
 
     // Probes for tiles below
+    /*
     glm::vec3 bottom = glm::vec3(m_position.x, m_position.y - (m_height / 2), m_position.z);
     glm::vec3 bottom_left = glm::vec3(m_position.x - (m_width / 2), m_position.y - (m_height / 2), m_position.z);
     glm::vec3 bottom_right = glm::vec3(m_position.x + (m_width / 2), m_position.y - (m_height / 2), m_position.z);
+    */
+    // Moves collision to bottom half of sprite
+    glm::vec3 bottom = glm::vec3(m_position.x, m_position.y - (m_height / 2), m_position.z);
+    glm::vec3 bottom_left = glm::vec3(m_position.x - (m_width / 2), m_position.y - (3 * m_height / 4), m_position.z);
+    glm::vec3 bottom_right = glm::vec3(m_position.x + (m_width / 2), m_position.y - (3 * m_height / 4), m_position.z);
 
     float penetration_x = 0;
     float penetration_y = 0;
