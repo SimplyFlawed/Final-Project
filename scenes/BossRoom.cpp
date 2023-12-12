@@ -49,6 +49,7 @@ BossRoom::~BossRoom()
     Mix_FreeChunk(m_state.sfx[DEATH_SFX]);
     Mix_FreeChunk(m_state.sfx[GAMEOVER_SFX]);
     Mix_FreeChunk(m_state.sfx[WIN_SFX]);
+    Mix_FreeChunk(m_state.sfx[ENTER_SFX]);
 
     for (int i = 0; i < m_number_of_sfx; i++)
     {
@@ -185,6 +186,9 @@ void BossRoom::initialise()
 
     m_state.sfx[WIN_SFX] = Mix_LoadWAV("assets/audio/Win.wav");
     Mix_VolumeChunk(m_state.sfx[WIN_SFX], MIX_MAX_VOLUME / 16.0f);
+
+    m_state.sfx[ENTER_SFX] = Mix_LoadWAV("assets/audio/Enter.wav");
+    Mix_VolumeChunk(m_state.sfx[ENTER_SFX], MIX_MAX_VOLUME / 8.0f);
 
 }
 

@@ -376,6 +376,7 @@ void game_loop(float delta_time)
     {
         switch_to_scene(g_levels[g_current_scene->m_state.next_scene_id]);
         g_effects->start(FADEIN, 1.0f);
+        Mix_PlayChannel(-1, g_current_scene->m_state.sfx[g_current_scene->ENTER_SFX], 0);
     }
 
     // ————— PLAYER DEATH ————— //
