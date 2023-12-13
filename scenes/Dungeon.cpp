@@ -196,7 +196,7 @@ void Dungeon::initialise()
         // Existing
         m_state.enemies[i].set_entity_type(ENEMY);
         m_state.enemies[i].set_ai_type(REPTILE);
-        m_state.enemies[i].set_ai_state(STAND);
+        m_state.enemies[i].set_ai_state(REST);
         m_state.enemies[i].m_texture_id = reptile_texture_id;
         m_state.enemies[i].set_speed(0.5f);
         m_state.enemies[i].set_hp(1);

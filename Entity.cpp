@@ -156,13 +156,13 @@ void Entity::ai_reptile(Entity* player, float delta_time)
         m_agro_time += delta_time;
 
         if (m_agro_time >= 5.0f) { m_agro_time = 0.0f; }
-        else if (m_agro_time >= 3.0f) {  set_ai_state(STAND); }
+        else if (m_agro_time >= 3.0f) {  set_ai_state(REST); }
         else if (m_agro_time >= 1.0f) { set_ai_state(RUSH); }
         else { set_ai_state(WALK); }
     }
     else 
     { 
-        set_ai_state(STAND);
+        set_ai_state(REST);
         m_agro_time = 0.0f;
     }
 
@@ -225,7 +225,7 @@ void Entity::ai_reptile(Entity* player, float delta_time)
         }
         break;
 
-    case STAND:
+    case REST:
         m_movement = glm::vec3(0.0f);
         break;
 
