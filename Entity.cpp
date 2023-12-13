@@ -541,7 +541,7 @@ void const Entity::check_collision_y(Map* map)
 
     }
 
-    if (m_collided_top && (map->check_tile(top) == 111 || map->check_tile(top) == 112)) m_next_level = true;
+    if (m_collided_top && (map->check_tile(top) == 123 || map->check_tile(top) == 124)) m_next_level = true;
     if (m_collided_top && (map->check_tile(top) == 142 || map->check_tile(top) == 143)) m_next_level = true;
 
     //if ((m_collided_top || m_collided_bottom) && (map->check_tile(top) == 173 || map->check_tile(bottom) == 173)) m_player_dead = true;

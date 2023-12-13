@@ -108,7 +108,7 @@ bool Map::is_solid(glm::vec3 position, float *penetration_x, float *penetration_
     *penetration_y = 0;
 
     // Non-solid tiles
-    int non_solid_tiles[] = { 0, 1, 2, 17, 29, 43, 123, 124, 162, 164, 173, 174, 180, 181, 182, 183, 185, 204, 205};
+    int non_solid_tiles[] = { 0, 1, 2, 17, 29, 43, 162, 164, 173, 174, 180, 181, 182, 183, 185, 204, 205};
     
     // If we are out of bounds, it is not solid
     if (position.x < m_left_bound || position.x > m_right_bound)  return false;
